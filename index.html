@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Enter a mince weight and get every droewors spice quantity scaled to the gram.">
+<meta name="description" content="Enter a meat weight and get every droewors or biltong spice quantity scaled to the gram.">
 
 <!-- installed-app chrome -->
 <link rel="manifest" href="manifest.webmanifest">
@@ -33,7 +33,7 @@
   [hidden] { display: none !important; }
 </style>
 
-<title>Droëwors Spice Calculator</title>
+<title>Droëwors &amp; Biltong Spice Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -195,6 +195,27 @@
     padding: 0 12px;
     cursor: pointer;
   }
+
+  /* ---- recipe picker ---- */
+  .recipe-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .recipe-bar .field-label { margin: 0; }
+  #recipe {
+    font-family: var(--body);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 14px;
+    cursor: pointer;
+  }
+  #recipe:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip {
@@ -419,14 +440,21 @@
 <div class="page">
 
   <header>
-    <p class="eyebrow">Per kilogram of mince</p>
-    <h1>Droëwors Spice Calculator</h1>
-    <p class="standfirst">Enter the weight of your mince and the whole cure scales with it, to the gram. Salt is yours to set — everything else holds its ratio.</p>
+    <div class="recipe-bar">
+      <label class="field-label" for="recipe">Recipe</label>
+      <select id="recipe" aria-label="Choose recipe">
+        <option value="droewors">Droëwors</option>
+        <option value="biltong">Biltong</option>
+      </select>
+    </div>
+    <p class="eyebrow" id="eyebrow">Per kilogram of mince</p>
+    <h1 id="title">Droëwors Spice Calculator</h1>
+    <p class="standfirst" id="standfirst">Enter the weight of your mince and the whole cure scales with it, to the gram. Salt is yours to set — everything else holds its ratio.</p>
   </header>
 
   <section class="weigher">
     <div>
-      <label class="field-label" for="weight">Mince weight</label>
+      <label class="field-label" for="weight" id="weight-label">Mince weight</label>
       <div class="entry">
         <input id="weight" type="number" inputmode="decimal" min="0" step="0.1" value="2" aria-describedby="strip">
         <select id="unit" aria-label="Weight unit">
@@ -445,12 +473,8 @@
       </div>
       <input id="saltrate" type="range" min="12" max="26" step="0.5" value="18"
              aria-describedby="salt-help">
-      <div class="salt-scale" aria-hidden="true"><span>12 — lean</span><span>26 — heavy</span></div>
-      <div class="chips" id="salt-presets" role="group" aria-label="Salt rate presets">
-        <button type="button" class="chip" data-v="15">Mild 15</button>
-        <button type="button" class="chip" data-v="18">Classic 18</button>
-        <button type="button" class="chip" data-v="21">Robust 21</button>
-      </div>
+      <div class="salt-scale" aria-hidden="true"><span id="salt-scale-min">12 — lean</span><span id="salt-scale-max">26 — heavy</span></div>
+      <div class="chips" id="salt-presets" role="group" aria-label="Salt rate presets"></div>
     </div>
   </section>
 
@@ -458,17 +482,18 @@
     <div class="stat"><dt>Dry spice</dt><dd id="s-dry">—</dd></div>
     <div class="stat"><dt>Liquid</dt><dd id="s-wet">—</dd></div>
     <div class="stat"><dt>Salt as % of meat</dt><dd id="s-pct">—</dd></div>
+    <div class="stat" id="stat-cure" hidden><dt>Cure time</dt><dd id="s-cure">—</dd></div>
   </dl>
 
   <section>
     <div class="group-head">
-      <h2>Dry cure</h2>
+      <h2 id="dry-title">Dry cure</h2>
       <span id="h-dry">29 g / kg</span>
     </div>
     <ul class="rows" id="list-dry"></ul>
 
     <div class="group-head">
-      <h2>Wet</h2>
+      <h2 id="wet-title">Wet</h2>
       <span id="h-wet">30 ml / kg</span>
     </div>
     <ul class="rows wet" id="list-wet"></ul>
@@ -481,17 +506,12 @@
 
   <section class="method">
     <h2>Order of work</h2>
-    <ol>
-      <li><b>Toast the coriander whole</b> in a dry pan until it smells nutty, then grind. Pre-ground will not give you the same wors.</li>
-      <li>Mix every dry ingredient together first, so the cloves and nutmeg spread evenly rather than landing in one bite.</li>
-      <li>Stir the vinegar and Worcestershire together, then fold the dry mix and the liquid through the mince.</li>
-      <li>Rest the seasoned mince covered in the fridge overnight before stuffing.</li>
-    </ol>
+    <ol id="method-list"></ol>
   </section>
 
   <footer>
     <span id="salt-help">Salt is the one rate worth tuning to taste — 18&nbsp;g/kg is the classic droëwors cure, and most makers settle somewhere between 15 and 21. Below about 15&nbsp;g/kg you are relying on the vinegar and the drying alone, so keep the airflow good and the batch small.</span>
-    Every other quantity stays fixed per kilogram. Spoon equivalents are approximate — spice density varies with grind and how hard you pack the spoon, so weigh whenever you can. Coarse sea salt only; iodised salt will taint the flavour.
+    <span id="foot-note">Every other quantity stays fixed per kilogram. Spoon equivalents are approximate — spice density varies with grind and how hard you pack the spoon, so weigh whenever you can. Coarse sea salt only; iodised salt will taint the flavour.</span>
   </footer>
 
 </div>
@@ -500,21 +520,85 @@
 (function () {
   "use strict";
 
-  var SALT_DEFAULT = 18;
-  var SALT_KEY = "droewors.saltRate";
+  var RECIPE_KEY = "droewors.recipe";
+  var SALT_KEY_PREFIX = "droewors.saltRate.";
+  var LEGACY_SALT_KEY = "droewors.saltRate"; // pre-multi-recipe installs; droewors only
 
-  var DRY = [
-    { name: "Coarse sea salt", id: "salt", sub: "", per: 18, gPerTsp: 5.5, note: "Do not use iodised salt", warn: false },
-    { name: "Coriander seeds",     sub: "toasted, ground",   per: 6,  gPerTsp: 1.8, note: "Toast first — essential", warn: true  },
-    { name: "Black pepper",        sub: "cracked",           per: 2,  gPerTsp: 2.3, note: "",                        warn: false },
-    { name: "Ground cloves",       sub: "",                  per: 1,  gPerTsp: 2.1, note: "Very strong — use sparingly", warn: true },
-    { name: "Ground nutmeg",       sub: "",                  per: 2,  gPerTsp: 2.2, note: "Classic droëwors warmth", warn: false }
-  ];
-
-  var WET = [
-    { name: "Brown vinegar",       sub: "", per: 15, gPerTsp: 5, note: "" },
-    { name: "Worcestershire sauce",sub: "", per: 15, gPerTsp: 5, note: "" }
-  ];
+  var RECIPES = {
+    droewors: {
+      label: "Droëwors",
+      title: "Droëwors Spice Calculator",
+      eyebrow: "Per kilogram of mince",
+      standfirst: "Enter the weight of your mince and the whole cure scales with it, to the gram. Salt is yours to set — everything else holds its ratio.",
+      weightLabel: "Mince weight",
+      dryLabel: "Dry cure",
+      wetLabel: "Wet",
+      saltDefault: 18, saltMin: 12, saltMax: 26, saltStep: 0.5,
+      saltScaleLabels: ["lean", "heavy"],
+      saltPresets: [
+        { v: 15, label: "Mild 15" },
+        { v: 18, label: "Classic 18" },
+        { v: 21, label: "Robust 21" }
+      ],
+      saltHelp: "Salt is the one rate worth tuning to taste — 18&nbsp;g/kg is the classic droëwors cure, and most makers settle somewhere between 15 and 21. Below about 15&nbsp;g/kg you are relying on the vinegar and the drying alone, so keep the airflow good and the batch small.",
+      footNote: "Every other quantity stays fixed per kilogram. Spoon equivalents are approximate — spice density varies with grind and how hard you pack the spoon, so weigh whenever you can. Coarse sea salt only; iodised salt will taint the flavour.",
+      cure: null,
+      dry: [
+        { name: "Coarse sea salt", id: "salt", sub: "", per: 18, gPerTsp: 5.5, note: "Do not use iodised salt", warn: false },
+        { name: "Coriander seeds",     sub: "toasted, ground",   per: 6,  gPerTsp: 1.8, note: "Toast first — essential", warn: true  },
+        { name: "Black pepper",        sub: "cracked",           per: 2,  gPerTsp: 2.3, note: "",                        warn: false },
+        { name: "Ground cloves",       sub: "",                  per: 1,  gPerTsp: 2.1, note: "Very strong — use sparingly", warn: true },
+        { name: "Ground nutmeg",       sub: "",                  per: 2,  gPerTsp: 2.2, note: "Classic droëwors warmth", warn: false }
+      ],
+      wet: [
+        { name: "Brown vinegar",       sub: "", per: 15, gPerTsp: 5, note: "" },
+        { name: "Worcestershire sauce",sub: "", per: 15, gPerTsp: 5, note: "" }
+      ],
+      method: [
+        "<b>Toast the coriander whole</b> in a dry pan until it smells nutty, then grind. Pre-ground will not give you the same wors.",
+        "Mix every dry ingredient together first, so the cloves and nutmeg spread evenly rather than landing in one bite.",
+        "Stir the vinegar and Worcestershire together, then fold the dry mix and the liquid through the mince.",
+        "Rest the seasoned mince covered in the fridge overnight before stuffing."
+      ]
+    },
+    biltong: {
+      label: "Biltong",
+      title: "Biltong Spice Calculator",
+      eyebrow: "Per kilogram of meat",
+      standfirst: "Enter the weight of your meat and the whole cure scales with it, to the gram. Salt is yours to set — everything else holds its ratio.",
+      weightLabel: "Meat weight",
+      dryLabel: "Dry spice",
+      wetLabel: "Wet",
+      saltDefault: 20, saltMin: 20, saltMax: 32, saltStep: 0.5,
+      saltScaleLabels: ["floor", "heavy"],
+      saltPresets: [
+        { v: 20, label: "Minimum 20" },
+        { v: 24, label: "Standard 24" },
+        { v: 28, label: "Heavy 28" }
+      ],
+      saltHelp: "20&nbsp;g/kg (2%) is the minimum safe cure for biltong — go higher for a heavier, longer-keeping cure, but not lower. Unlike droëwors, this isn't a rate to trim to taste; treat 20 as the floor.",
+      footNote: "Every other quantity stays fixed per kilogram of meat. Spoon equivalents are approximate — spice density varies with grind and how hard you pack the spoon, so weigh whenever you can. Coarse sea salt only; iodised salt will taint the flavour.",
+      cure: "4h min (12h ideal)",
+      dry: [
+        { name: "Coarse sea salt", id: "salt", sub: "", per: 20, gPerTsp: 5.5, note: "2% of meat weight — minimum safe cure", warn: true },
+        { name: "Coriander seeds", sub: "toasted, coarsely crushed", per: 15, gPerTsp: 2.2, note: "Toast dry in pan until fragrant — the signature spice", warn: true },
+        { name: "Black pepper",   sub: "coarsely ground",           per: 5,  gPerTsp: 2.3, note: "¼ ratio to coriander — do not over-grind", warn: false },
+        { name: "Brown sugar",    sub: "",                          per: 5,  gPerTsp: 4.5, note: "Optional — rounds the flavour, not strictly traditional", warn: false },
+        { name: "Bicarbonate of soda", sub: "",                     per: 2.5,gPerTsp: 4.6, note: "Tenderises the meat", warn: false }
+      ],
+      wet: [
+        { name: "Brown / malt vinegar", sub: "",          per: 60, gPerTsp: 5, note: "Apply to meat before the dry spices", warn: true },
+        { name: "Worcestershire sauce", sub: "optional",  per: 20, gPerTsp: 5, note: "Use in place of 20 ml of the vinegar above", warn: false }
+      ],
+      method: [
+        "<b>Toast the coriander seeds</b> in a dry pan until fragrant, then crush coarsely — a rough crack, not a powder.",
+        "Mix every dry ingredient together first, so the pepper and bicarb spread evenly rather than landing in one patch.",
+        "Rub the vinegar (and Worcestershire, if using) into every surface of the meat <b>before</b> the dry spice mix goes on.",
+        "Marinate in the refrigerator for 4–24 hours, turning every 30 minutes. Longer within that range gives a deeper cure.",
+        "Hang to dry along the grain, not across it."
+      ]
+    }
+  };
 
   var CHIPS = {
     kg: [0.5, 1, 2, 5, 10],
@@ -527,11 +611,15 @@
   var $ = function (id) { return document.getElementById(id); };
   var weightEl = $("weight"), unitEl = $("unit"), chipsEl = $("chips");
   var saltEl = $("saltrate"), saltPresetsEl = $("salt-presets");
+  var recipeEl = $("recipe");
+
+  var recipeKey = "droewors";
+  function recipe() { return RECIPES[recipeKey]; }
 
   // the salt row is the only rate the cook sets; everything else is fixed per kg
   function saltRate() {
     var v = parseFloat(saltEl.value);
-    return isFinite(v) ? v : SALT_DEFAULT;
+    return isFinite(v) ? v : recipe().saltDefault;
   }
 
   function perOf(item) {
@@ -605,20 +693,22 @@
 
   function renderSaltPresets() {
     var rate = saltRate();
-    Array.prototype.forEach.call(saltPresetsEl.children, function (btn) {
-      btn.setAttribute("aria-pressed", parseFloat(btn.dataset.v) === rate ? "true" : "false");
-    });
+    saltPresetsEl.innerHTML = recipe().saltPresets.map(function (p) {
+      return '<button type="button" class="chip" data-v="' + p.v + '" aria-pressed="' +
+        (p.v === rate ? "true" : "false") + '">' + p.label + "</button>";
+    }).join("");
   }
 
   function render() {
     var kg = currentKg();
     var rate = saltRate();
+    var r = recipe();
 
-    $("list-dry").innerHTML = DRY.map(function (i) { return rowHtml(i, kg, "g"); }).join("");
-    $("list-wet").innerHTML = WET.map(function (i) { return rowHtml(i, kg, "ml"); }).join("");
+    $("list-dry").innerHTML = r.dry.map(function (i) { return rowHtml(i, kg, "g"); }).join("");
+    $("list-wet").innerHTML = r.wet.map(function (i) { return rowHtml(i, kg, "ml"); }).join("");
 
-    var dryPerKg = DRY.reduce(function (s, i) { return s + perOf(i); }, 0);
-    var wetPerKg = WET.reduce(function (s, i) { return s + perOf(i); }, 0);
+    var dryPerKg = r.dry.reduce(function (s, i) { return s + perOf(i); }, 0);
+    var wetPerKg = r.wet.reduce(function (s, i) { return s + perOf(i); }, 0);
 
     $("s-dry").innerHTML = fmtNum(dryPerKg * kg) + " g";
     $("s-wet").innerHTML = fmtNum(wetPerKg * kg) + " ml";
@@ -632,28 +722,87 @@
     renderSaltPresets();
   }
 
+  function applyRecipeText() {
+    var r = recipe();
+    document.title = r.title;
+    $("eyebrow").textContent = r.eyebrow;
+    $("title").textContent = r.title;
+    $("standfirst").textContent = r.standfirst;
+    $("weight-label").textContent = r.weightLabel;
+    $("dry-title").textContent = r.dryLabel;
+    $("wet-title").textContent = r.wetLabel;
+    $("salt-help").innerHTML = r.saltHelp;
+    $("foot-note").textContent = r.footNote;
+
+    $("method-list").innerHTML = r.method.map(function (step) {
+      return "<li>" + step + "</li>";
+    }).join("");
+
+    var cureStat = $("stat-cure");
+    if (r.cure) {
+      $("s-cure").textContent = r.cure;
+      cureStat.hidden = false;
+    } else {
+      cureStat.hidden = true;
+    }
+
+    saltEl.min = r.saltMin;
+    saltEl.max = r.saltMax;
+    saltEl.step = r.saltStep;
+    $("salt-scale-min").textContent = r.saltMin + " — " + r.saltScaleLabels[0];
+    $("salt-scale-max").textContent = r.saltMax + " — " + r.saltScaleLabels[1];
+  }
+
   function clipboardText() {
     var kg = currentKg();
+    var r = recipe();
     var lines = [
-      "Droëwors cure — " + fmtNum(kg) + " kg mince",
+      r.label + " cure — " + fmtNum(kg) + " kg meat",
       "Salt rate " + fmtNum(saltRate()) + " g/kg",
       ""
     ];
-    DRY.forEach(function (i) { lines.push(i.name + ": " + fmtNum(perOf(i) * kg) + " g"); });
+    r.dry.forEach(function (i) { lines.push(i.name + ": " + fmtNum(perOf(i) * kg) + " g"); });
     lines.push("");
-    WET.forEach(function (i) { lines.push(i.name + ": " + fmtNum(perOf(i) * kg) + " ml"); });
+    r.wet.forEach(function (i) { lines.push(i.name + ": " + fmtNum(perOf(i) * kg) + " ml"); });
     return lines.join("\n");
   }
 
+  function saltKey() { return SALT_KEY_PREFIX + recipeKey; }
+
   function rememberSalt() {
-    try { localStorage.setItem(SALT_KEY, String(saltRate())); } catch (e) { /* private window */ }
+    try { localStorage.setItem(saltKey(), String(saltRate())); } catch (e) { /* private window */ }
   }
 
   function restoreSalt() {
+    var r = recipe();
+    var saved = NaN;
     try {
-      var saved = parseFloat(localStorage.getItem(SALT_KEY));
-      if (isFinite(saved) && saved >= 12 && saved <= 26) saltEl.value = String(saved);
+      saved = parseFloat(localStorage.getItem(saltKey()));
+      if (!isFinite(saved) && recipeKey === "droewors") {
+        saved = parseFloat(localStorage.getItem(LEGACY_SALT_KEY)); // pre-multi-recipe installs
+      }
     } catch (e) { /* private window */ }
+    saltEl.value = String((isFinite(saved) && saved >= r.saltMin && saved <= r.saltMax) ? saved : r.saltDefault);
+  }
+
+  function rememberRecipe() {
+    try { localStorage.setItem(RECIPE_KEY, recipeKey); } catch (e) { /* private window */ }
+  }
+
+  function restoreRecipe() {
+    try {
+      var saved = localStorage.getItem(RECIPE_KEY);
+      if (saved && RECIPES[saved]) recipeKey = saved;
+    } catch (e) { /* private window */ }
+  }
+
+  function switchRecipe(key) {
+    if (!RECIPES[key] || key === recipeKey) return;
+    recipeKey = key;
+    applyRecipeText();
+    restoreSalt();
+    render();
+    rememberRecipe();
   }
 
   weightEl.addEventListener("input", render);
@@ -667,6 +816,10 @@
     saltEl.value = btn.dataset.v;
     render();
     rememberSalt();
+  });
+
+  recipeEl.addEventListener("change", function () {
+    switchRecipe(recipeEl.value);
   });
 
   unitEl.addEventListener("change", function () {
@@ -702,6 +855,9 @@
   });
 
   unitEl.dataset.prev = unitEl.value;
+  restoreRecipe();
+  recipeEl.value = recipeKey;
+  applyRecipeText();
   restoreSalt();
   render();
 })();
