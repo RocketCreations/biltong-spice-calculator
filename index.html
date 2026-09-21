@@ -445,6 +445,7 @@
       <select id="recipe" aria-label="Choose recipe">
         <option value="droewors">Droëwors</option>
         <option value="biltong">Biltong</option>
+        <option value="chilliBites">Chilli Bites</option>
       </select>
     </div>
     <p class="eyebrow" id="eyebrow">Per kilogram of mince</p>
@@ -596,6 +597,45 @@
         "Rub the vinegar (and Worcestershire, if using) into every surface of the meat <b>before</b> the dry spice mix goes on.",
         "Marinate in the refrigerator for 4–24 hours, turning every 30 minutes. Longer within that range gives a deeper cure.",
         "Hang to dry along the grain, not across it."
+      ]
+    },
+    chilliBites: {
+      label: "Chilli Bites",
+      title: "Chilli Bites Spice Calculator",
+      eyebrow: "Per kilogram of meat",
+      standfirst: "Enter the weight of your meat and the whole cure scales with it, to the gram. Salt is yours to set — everything else holds its ratio.",
+      weightLabel: "Meat weight",
+      dryLabel: "Dry spice",
+      wetLabel: "Wet",
+      saltDefault: 20, saltMin: 20, saltMax: 32, saltStep: 0.5,
+      saltScaleLabels: ["floor", "heavy"],
+      saltPresets: [
+        { v: 20, label: "Minimum 20" },
+        { v: 24, label: "Standard 24" },
+        { v: 28, label: "Heavy 28" }
+      ],
+      saltHelp: "20&nbsp;g/kg (2%) of meat weight is the standard cure for chilli bites — go higher for a heavier, longer-keeping cure, but not lower. As with biltong, this isn't a rate to trim to taste; treat 20 as the floor. Adjust the heat with the chilli flakes and cayenne instead.",
+      footNote: "Every other quantity stays fixed per kilogram of meat. Spoon equivalents are approximate — spice density varies with grind and how hard you pack the spoon, so weigh whenever you can. Coarse sea salt only; iodised salt will taint the flavour.",
+      cure: null,
+      dry: [
+        { name: "Coarse sea salt", id: "salt", sub: "", per: 20, gPerTsp: 5.5, note: "2% of meat weight", warn: false },
+        { name: "Coriander seeds", sub: "toasted, crushed", per: 12, gPerTsp: 2,   note: "Slightly less than biltong — chilli takes over", warn: false },
+        { name: "Black pepper",    sub: "coarsely ground",  per: 5,  gPerTsp: 2.3, note: "", warn: false },
+        { name: "Chilli flakes",   sub: "",                 per: 8,  gPerTsp: 2.2, note: "Medium heat — adjust: 4 g mild / 15 g hot", warn: true },
+        { name: "Cayenne pepper",  sub: "",                 per: 2,  gPerTsp: 1.8, note: "Background heat — omit for mild version", warn: false },
+        { name: "Brown sugar",     sub: "",                 per: 4,  gPerTsp: 4.5, note: "Balances the chilli", warn: false },
+        { name: "Bicarbonate of soda", sub: "",              per: 2,  gPerTsp: 4.6, note: "", warn: false }
+      ],
+      wet: [
+        { name: "Brown / malt vinegar", sub: "",         per: 60, gPerTsp: 5, note: "", warn: false },
+        { name: "Worcestershire sauce", sub: "optional", per: 20, gPerTsp: 5, note: "", warn: false }
+      ],
+      method: [
+        "Cut the meat into bite-sized strips, then <b>toast the coriander seeds</b> in a dry pan until fragrant and crush coarsely.",
+        "Mix every dry ingredient together, setting the chilli flakes to taste — 4&nbsp;g/kg for mild, up to 15&nbsp;g/kg for hot.",
+        "Rub the vinegar (and Worcestershire, if using) into every surface of the meat <b>before</b> the dry spice mix goes on.",
+        "Marinate in the refrigerator for 4–24 hours, turning every 30 minutes.",
+        "Hang to dry along the grain — smaller strips dry faster than a full biltong."
       ]
     }
   };
