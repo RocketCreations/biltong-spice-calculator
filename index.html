@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Enter a mince weight and get every droewors spice quantity scaled to the gram.">
+
+<!-- installed-app chrome -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#EFEDE7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14120F" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Droewors">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+
+<style>
+  /* ---- reset (the hosted page has to provide its own) ---- */
+  html {
+    color-scheme: light dark;
+    -webkit-text-size-adjust: 100%;
+  }
+  :root {
+    /* clear the notch / home indicator when launched from the home screen */
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  body { margin: 0; -webkit-tap-highlight-color: transparent; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+
+<title>Droëwors Spice Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --bg:        #EFEDE7;
+    --surface:   #FBFAF7;
+    --sunken:    #E5E2D9;
+    --ink:       #1B1815;
+    --ink-2:     #5E574E;
+    --ink-3:     #8B8377;
+    --line:      #D8D3C7;
+    --line-soft: #E4E0D5;
+    --accent:    #8E2F22;
+    --wet:       #5A6733;
+    --shadow:    0 1px 2px rgba(27,24,21,.05), 0 8px 24px -12px rgba(27,24,21,.18);
+
+    --display: "Fraunces", Georgia, "Times New Roman", serif;
+    --body:    "Karla", "Segoe UI", system-ui, sans-serif;
+    --mono:    "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:        #14120F;
+      --surface:   #1D1B17;
+      --sunken:    #100E0C;
+      --ink:       #F1EDE5;
+      --ink-2:     #A69E92;
+      --ink-3:     #7B736A;
+      --line:      #332F29;
+      --line-soft: #272420;
+      --accent:    #DB7360;
+      --wet:       #A6B46C;
+      --shadow:    0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:        #14120F;
+    --surface:   #1D1B17;
+    --sunken:    #100E0C;
+    --ink:       #F1EDE5;
+    --ink-2:     #A69E92;
+    --ink-3:     #7B736A;
+    --line:      #332F29;
+    --line-soft: #272420;
+    --accent:    #DB7360;
+    --wet:       #A6B46C;
+    --shadow:    0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 40px 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  /* ---- masthead ---- */
+  .eyebrow {
+    font-family: var(--body);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
+  }
+  h1 {
+    font-family: var(--display);
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-size: clamp(34px, 9vw, 46px);
+    line-height: 1.02;
+    letter-spacing: -.015em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .standfirst {
+    margin: 12px 0 0;
+    color: var(--ink-2);
+    max-width: 46ch;
+  }
+
+  /* ---- input ---- */
+  .weigher {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .field-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .entry {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  #weight {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+    font-family: var(--mono);
+    font-size: clamp(28px, 7vw, 36px);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    background: var(--sunken);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 8px 14px;
+    -moz-appearance: textfield;
+  }
+  #weight::-webkit-outer-spin-button,
+  #weight::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  #weight:focus-visible,
+  #unit:focus-visible,
+  .chip:focus-visible,
+  #saltrate:focus-visible,
+  #copy:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  #unit {
+    flex: 0 0 auto;
+    font-family: var(--body);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--sunken);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0 12px;
+    cursor: pointer;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-2);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: color .12s, border-color .12s, background .12s;
+  }
+  .chip:hover { color: var(--ink); border-color: var(--ink-3); }
+  .chip[aria-pressed="true"] {
+    color: var(--surface);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* ---- salt rate ---- */
+  .salt {
+    border-top: 1px solid var(--line-soft);
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .salt-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .salt-val {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .salt-val .u { font-size: 12px; font-weight: 400; color: var(--ink-3); margin-left: 3px; }
+  #saltrate {
+    width: 100%;
+    margin: 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .salt-scale {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: -4px;
+  }
+
+  /* ---- summary strip ---- */
+  .strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1px;
+    background: var(--line-soft);
+    border: 1px solid var(--line-soft);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .stat {
+    flex: 1 1 120px;
+    background: var(--bg);
+    padding: 12px 14px;
+  }
+  .stat dt {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 4px;
+  }
+  .stat dd {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+
+  /* ---- ingredient list ---- */
+  .group-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--ink);
+    margin-bottom: 2px;
+  }
+  .group-head h2 {
+    font-family: var(--body);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+  .group-head span {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+
+  ul.rows { list-style: none; margin: 0 0 24px; padding: 0; }
+  ul.rows:last-child { margin-bottom: 0; }
+
+  .row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .row .what { min-width: 0; }
+  .row .name {
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .row .sub {
+    font-size: 13px;
+    color: var(--ink-3);
+    font-style: italic;
+  }
+  .row .note {
+    display: block;
+    font-size: 13px;
+    color: var(--ink-2);
+    margin-top: 3px;
+  }
+  .row .note.warn { color: var(--accent); font-weight: 500; }
+
+  .row .amt {
+    flex: 0 0 auto;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .row .qty {
+    font-family: var(--mono);
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .row .qty .u { font-size: 13px; font-weight: 400; color: var(--ink-3); margin-left: 2px; }
+  .wet .qty .u { color: var(--wet); }
+  .row .spoon {
+    display: block;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+
+  /* ---- method ---- */
+  .method {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 3px;
+    padding: 18px 20px;
+  }
+  .method h2 {
+    font-family: var(--body);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 10px;
+  }
+  .method ol { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 14.5px; }
+  .method li { margin-bottom: 6px; }
+  .method li:last-child { margin-bottom: 0; }
+  .method b { color: var(--ink); font-weight: 600; }
+
+  .actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  #copy {
+    font-family: var(--body);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--ink-3);
+    border-radius: 3px;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: background .12s, color .12s, border-color .12s;
+  }
+  #copy:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  #copied { font-size: 13px; color: var(--wet); font-weight: 600; }
+
+  footer {
+    font-size: 12.5px;
+    color: var(--ink-3);
+    line-height: 1.6;
+    border-top: 1px solid var(--line-soft);
+    padding-top: 16px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header>
+    <p class="eyebrow">Per kilogram of mince</p>
+    <h1>Droëwors Spice Calculator</h1>
+    <p class="standfirst">Enter the weight of your mince and the whole cure scales with it, to the gram. Salt is yours to set — everything else holds its ratio.</p>
+  </header>
+
+  <section class="weigher">
+    <div>
+      <label class="field-label" for="weight">Mince weight</label>
+      <div class="entry">
+        <input id="weight" type="number" inputmode="decimal" min="0" step="0.1" value="2" aria-describedby="strip">
+        <select id="unit" aria-label="Weight unit">
+          <option value="kg" selected>kg</option>
+          <option value="g">g</option>
+          <option value="lb">lb</option>
+        </select>
+      </div>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Common batch sizes"></div>
+
+    <div class="salt">
+      <div class="salt-head">
+        <label class="field-label" for="saltrate">Salt rate</label>
+        <output class="salt-val" id="salt-out" for="saltrate">18<span class="u">g / kg</span></output>
+      </div>
+      <input id="saltrate" type="range" min="12" max="26" step="0.5" value="18"
+             aria-describedby="salt-help">
+      <div class="salt-scale" aria-hidden="true"><span>12 — lean</span><span>26 — heavy</span></div>
+      <div class="chips" id="salt-presets" role="group" aria-label="Salt rate presets">
+        <button type="button" class="chip" data-v="15">Mild 15</button>
+        <button type="button" class="chip" data-v="18">Classic 18</button>
+        <button type="button" class="chip" data-v="21">Robust 21</button>
+      </div>
+    </div>
+  </section>
+
+  <dl class="strip" id="strip">
+    <div class="stat"><dt>Dry spice</dt><dd id="s-dry">—</dd></div>
+    <div class="stat"><dt>Liquid</dt><dd id="s-wet">—</dd></div>
+    <div class="stat"><dt>Salt as % of meat</dt><dd id="s-pct">—</dd></div>
+  </dl>
+
+  <section>
+    <div class="group-head">
+      <h2>Dry cure</h2>
+      <span id="h-dry">29 g / kg</span>
+    </div>
+    <ul class="rows" id="list-dry"></ul>
+
+    <div class="group-head">
+      <h2>Wet</h2>
+      <span id="h-wet">30 ml / kg</span>
+    </div>
+    <ul class="rows wet" id="list-wet"></ul>
+  </section>
+
+  <div class="actions">
+    <button id="copy" type="button">Copy the list</button>
+    <span id="copied" hidden>Copied</span>
+  </div>
+
+  <section class="method">
+    <h2>Order of work</h2>
+    <ol>
+      <li><b>Toast the coriander whole</b> in a dry pan until it smells nutty, then grind. Pre-ground will not give you the same wors.</li>
+      <li>Mix every dry ingredient together first, so the cloves and nutmeg spread evenly rather than landing in one bite.</li>
+      <li>Stir the vinegar and Worcestershire together, then fold the dry mix and the liquid through the mince.</li>
+      <li>Rest the seasoned mince covered in the fridge overnight before stuffing.</li>
+    </ol>
+  </section>
+
+  <footer>
+    <span id="salt-help">Salt is the one rate worth tuning to taste — 18&nbsp;g/kg is the classic droëwors cure, and most makers settle somewhere between 15 and 21. Below about 15&nbsp;g/kg you are relying on the vinegar and the drying alone, so keep the airflow good and the batch small.</span>
+    Every other quantity stays fixed per kilogram. Spoon equivalents are approximate — spice density varies with grind and how hard you pack the spoon, so weigh whenever you can. Coarse sea salt only; iodised salt will taint the flavour.
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var SALT_DEFAULT = 18;
+  var SALT_KEY = "droewors.saltRate";
+
+  var DRY = [
+    { name: "Coarse sea salt", id: "salt", sub: "", per: 18, gPerTsp: 5.5, note: "Do not use iodised salt", warn: false },
+    { name: "Coriander seeds",     sub: "toasted, ground",   per: 6,  gPerTsp: 1.8, note: "Toast first — essential", warn: true  },
+    { name: "Black pepper",        sub: "cracked",           per: 2,  gPerTsp: 2.3, note: "",                        warn: false },
+    { name: "Ground cloves",       sub: "",                  per: 1,  gPerTsp: 2.1, note: "Very strong — use sparingly", warn: true },
+    { name: "Ground nutmeg",       sub: "",                  per: 2,  gPerTsp: 2.2, note: "Classic droëwors warmth", warn: false }
+  ];
+
+  var WET = [
+    { name: "Brown vinegar",       sub: "", per: 15, gPerTsp: 5, note: "" },
+    { name: "Worcestershire sauce",sub: "", per: 15, gPerTsp: 5, note: "" }
+  ];
+
+  var CHIPS = {
+    kg: [0.5, 1, 2, 5, 10],
+    g:  [250, 500, 1000, 2500, 5000],
+    lb: [1, 2, 5, 10, 20]
+  };
+
+  var TO_KG = { kg: 1, g: 0.001, lb: 0.45359237 };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var weightEl = $("weight"), unitEl = $("unit"), chipsEl = $("chips");
+  var saltEl = $("saltrate"), saltPresetsEl = $("salt-presets");
+
+  // the salt row is the only rate the cook sets; everything else is fixed per kg
+  function saltRate() {
+    var v = parseFloat(saltEl.value);
+    return isFinite(v) ? v : SALT_DEFAULT;
+  }
+
+  function perOf(item) {
+    return item.id === "salt" ? saltRate() : item.per;
+  }
+
+  function fmtNum(v) {
+    if (v === 0) return "0";
+    if (v < 10) return (Math.round(v * 10) / 10).toString();
+    if (v < 1000) return Math.round(v).toString();
+    return Math.round(v).toLocaleString("en-AU");
+  }
+
+  var FRACTIONS = { 0: "", 0.25: "¼", 0.5: "½", 0.75: "¾" };
+
+  function frac(n) {
+    var whole = Math.floor(n + 1e-9);
+    var f = Math.round((n - whole) * 4) / 4;
+    var sym = FRACTIONS[f] || "";
+    if (whole && sym) return whole + sym;
+    if (whole) return String(whole);
+    return sym || "0";
+  }
+
+  function spoons(tsp) {
+    if (!(tsp > 0)) return "";
+    if (tsp < 0.12) return "a pinch";
+    var q = Math.round(tsp * 4) / 4;
+    if (q === 0) q = 0.25;
+    var tbsp = Math.floor(q / 3 + 1e-9);
+    var rest = Math.round((q - tbsp * 3) * 4) / 4;
+    var parts = [];
+    if (tbsp) parts.push(tbsp + " tbsp");
+    if (rest > 0) parts.push(frac(rest) + " tsp");
+    return "≈ " + parts.join(" + ");
+  }
+
+  function rowHtml(item, kg, unit) {
+    var amount = perOf(item) * kg;
+    var tsp = amount / item.gPerTsp;
+    var noteClass = item.warn ? "note warn" : "note";
+    return '<li class="row">' +
+      '<div class="what">' +
+        '<div class="name">' + item.name +
+          (item.sub ? ' <span class="sub">' + item.sub + "</span>" : "") +
+        "</div>" +
+        (item.note ? '<span class="' + noteClass + '">' + item.note + "</span>" : "") +
+      "</div>" +
+      '<div class="amt">' +
+        '<span class="qty">' + fmtNum(amount) + '<span class="u">' + unit + "</span></span>" +
+        '<span class="spoon">' + spoons(tsp) + "</span>" +
+      "</div>" +
+    "</li>";
+  }
+
+  function currentKg() {
+    var raw = parseFloat(weightEl.value);
+    if (!isFinite(raw) || raw < 0) raw = 0;
+    return raw * TO_KG[unitEl.value];
+  }
+
+  function renderChips() {
+    var unit = unitEl.value;
+    var val = parseFloat(weightEl.value);
+    chipsEl.innerHTML = CHIPS[unit].map(function (v) {
+      var on = Math.abs(v - val) < 1e-9;
+      return '<button type="button" class="chip" data-v="' + v + '" aria-pressed="' +
+        (on ? "true" : "false") + '">' + v.toLocaleString("en-AU") + " " + unit + "</button>";
+    }).join("");
+  }
+
+  function renderSaltPresets() {
+    var rate = saltRate();
+    Array.prototype.forEach.call(saltPresetsEl.children, function (btn) {
+      btn.setAttribute("aria-pressed", parseFloat(btn.dataset.v) === rate ? "true" : "false");
+    });
+  }
+
+  function render() {
+    var kg = currentKg();
+    var rate = saltRate();
+
+    $("list-dry").innerHTML = DRY.map(function (i) { return rowHtml(i, kg, "g"); }).join("");
+    $("list-wet").innerHTML = WET.map(function (i) { return rowHtml(i, kg, "ml"); }).join("");
+
+    var dryPerKg = DRY.reduce(function (s, i) { return s + perOf(i); }, 0);
+    var wetPerKg = WET.reduce(function (s, i) { return s + perOf(i); }, 0);
+
+    $("s-dry").innerHTML = fmtNum(dryPerKg * kg) + " g";
+    $("s-wet").innerHTML = fmtNum(wetPerKg * kg) + " ml";
+    $("s-pct").innerHTML = (rate / 10).toFixed(2).replace(/0$/, "") + "&nbsp;%";
+
+    $("salt-out").innerHTML = fmtNum(rate) + '<span class="u">g / kg</span>';
+    $("h-dry").textContent = fmtNum(dryPerKg) + " g / kg";
+    $("h-wet").textContent = fmtNum(wetPerKg) + " ml / kg";
+
+    renderChips();
+    renderSaltPresets();
+  }
+
+  function clipboardText() {
+    var kg = currentKg();
+    var lines = [
+      "Droëwors cure — " + fmtNum(kg) + " kg mince",
+      "Salt rate " + fmtNum(saltRate()) + " g/kg",
+      ""
+    ];
+    DRY.forEach(function (i) { lines.push(i.name + ": " + fmtNum(perOf(i) * kg) + " g"); });
+    lines.push("");
+    WET.forEach(function (i) { lines.push(i.name + ": " + fmtNum(perOf(i) * kg) + " ml"); });
+    return lines.join("\n");
+  }
+
+  function rememberSalt() {
+    try { localStorage.setItem(SALT_KEY, String(saltRate())); } catch (e) { /* private window */ }
+  }
+
+  function restoreSalt() {
+    try {
+      var saved = parseFloat(localStorage.getItem(SALT_KEY));
+      if (isFinite(saved) && saved >= 12 && saved <= 26) saltEl.value = String(saved);
+    } catch (e) { /* private window */ }
+  }
+
+  weightEl.addEventListener("input", render);
+
+  saltEl.addEventListener("input", render);
+  saltEl.addEventListener("change", rememberSalt);
+
+  saltPresetsEl.addEventListener("click", function (e) {
+    var btn = e.target.closest(".chip");
+    if (!btn) return;
+    saltEl.value = btn.dataset.v;
+    render();
+    rememberSalt();
+  });
+
+  unitEl.addEventListener("change", function () {
+    // keep the real meat weight the same when the unit changes
+    var was = unitEl.dataset.prev || "kg";
+    var raw = parseFloat(weightEl.value);
+    if (isFinite(raw) && raw > 0) {
+      var kg = raw * TO_KG[was];
+      var next = kg / TO_KG[unitEl.value];
+      weightEl.value = String(Math.round(next * 100) / 100);
+    }
+    unitEl.dataset.prev = unitEl.value;
+    weightEl.step = unitEl.value === "g" ? "50" : "0.1";
+    render();
+  });
+
+  chipsEl.addEventListener("click", function (e) {
+    var btn = e.target.closest(".chip");
+    if (!btn) return;
+    weightEl.value = btn.dataset.v;
+    render();
+  });
+
+  $("copy").addEventListener("click", function () {
+    var done = function () {
+      var tag = $("copied");
+      tag.hidden = false;
+      setTimeout(function () { tag.hidden = true; }, 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(clipboardText()).then(done, function () {});
+    }
+  });
+
+  unitEl.dataset.prev = unitEl.value;
+  restoreSalt();
+  render();
+})();
+</script>
+
+<script>
+  // offline support; skipped silently on file:// so local testing still works
+  if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>

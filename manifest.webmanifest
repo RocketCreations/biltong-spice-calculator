@@ -1,0 +1,17 @@
+{
+  "name": "Droëwors Spice Calculator",
+  "short_name": "Droëwors",
+  "description": "Enter a mince weight and get every droëwors spice quantity scaled to the gram.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EFEDE7",
+  "theme_color": "#EFEDE7",
+  "lang": "en-AU",
+  "categories": ["food", "utilities"],
+  "icons": [
+    { "src": "icons/icon-192.png",          "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png",          "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
