@@ -8,7 +8,7 @@
  * Bump CACHE when you change the file list below.
  */
 
-var CACHE = "droewors-v3";
+var CACHE = "droewors-v4";
 
 var CORE = [
   "./",
